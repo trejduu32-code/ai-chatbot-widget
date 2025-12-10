@@ -1,0 +1,818 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Chatbot Widget - Demo & Integration Guide</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 40px;
+            animation: fadeInDown 0.6s ease;
+        }
+
+        .header h1 {
+            font-size: 3em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .header p {
+            font-size: 1.2em;
+            opacity: 0.95;
+        }
+
+        .content-wrapper {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            padding: 30px;
+            animation: fadeInUp 0.6s ease;
+        }
+
+        .card h2 {
+            color: #667eea;
+            margin-bottom: 20px;
+            font-size: 1.8em;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 15px;
+        }
+
+        .card h3 {
+            color: #764ba2;
+            margin-top: 20px;
+            margin-bottom: 10px;
+            font-size: 1.1em;
+        }
+
+        .code-block {
+            background: #f5f5f5;
+            border-left: 4px solid #667eea;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 4px;
+            overflow-x: auto;
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+            font-size: 0.9em;
+            line-height: 1.5;
+        }
+
+        .code-block code {
+            color: #333;
+        }
+
+        .feature-list {
+            list-style: none;
+            margin: 15px 0;
+        }
+
+        .feature-list li {
+            padding: 10px 0;
+            display: flex;
+            align-items: center;
+        }
+
+        .feature-list li:before {
+            content: "✓";
+            color: #667eea;
+            font-weight: bold;
+            margin-right: 10px;
+            font-size: 1.2em;
+        }
+
+        .demo-section {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            animation: fadeInUp 0.8s ease;
+        }
+
+        .demo-section h2 {
+            color: #667eea;
+            margin-bottom: 20px;
+            font-size: 1.8em;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 15px;
+        }
+
+        .chatbot-container {
+            margin: 20px 0;
+            padding: 20px;
+            background: #f9f9f9;
+            border-radius: 8px;
+            border: 2px dashed #ddd;
+            text-align: center;
+        }
+
+        .demo-button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 6px;
+            font-size: 1em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 10px 5px;
+            font-weight: 600;
+        }
+
+        .demo-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .demo-button:active {
+            transform: translateY(0);
+        }
+
+        .copy-button {
+            background: #764ba2;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.85em;
+            margin-left: 10px;
+            transition: background 0.3s ease;
+        }
+
+        .copy-button:hover {
+            background: #5a3680;
+        }
+
+        .copy-button.copied {
+            background: #27ae60;
+        }
+
+        .integration-tabs {
+            display: flex;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #ddd;
+            gap: 10px;
+        }
+
+        .tab-button {
+            padding: 12px 20px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: #667eea;
+            font-weight: 600;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s ease;
+            margin-bottom: -2px;
+        }
+
+        .tab-button.active {
+            color: #667eea;
+            border-bottom-color: #667eea;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .config-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+        }
+
+        .config-table th,
+        .config-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .config-table th {
+            background: #f5f5f5;
+            font-weight: 600;
+            color: #667eea;
+        }
+
+        .config-table tr:hover {
+            background: #f9f9f9;
+        }
+
+        .footer {
+            text-align: center;
+            color: white;
+            margin-top: 40px;
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.1);
+            border-radius: 12px;
+        }
+
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            animation: fadeIn 0.3s ease;
+        }
+
+        .modal-content {
+            background-color: white;
+            margin: 10% auto;
+            padding: 30px;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .close {
+            color: #999;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: color 0.3s ease;
+        }
+
+        .close:hover {
+            color: #333;
+        }
+
+        .chatbot-input {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .chatbot-input input {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 1em;
+        }
+
+        .chatbot-input button {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .message {
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 6px;
+            max-width: 80%;
+        }
+
+        .user-message {
+            background: #667eea;
+            color: white;
+            margin-left: auto;
+            text-align: right;
+        }
+
+        .bot-message {
+            background: #f0f0f0;
+            color: #333;
+        }
+
+        .chat-display {
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            padding: 15px;
+            height: 300px;
+            overflow-y: auto;
+            background: white;
+            margin-bottom: 15px;
+        }
+
+        @media (max-width: 768px) {
+            .content-wrapper {
+                grid-template-columns: 1fr;
+            }
+
+            .header h1 {
+                font-size: 2em;
+            }
+
+            .integration-tabs {
+                flex-wrap: wrap;
+            }
+
+            .tab-button {
+                padding: 10px 15px;
+                font-size: 0.9em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header Section -->
+        <div class="header">
+            <h1>🤖 AI Chatbot Widget</h1>
+            <p>Easy-to-integrate, lightweight AI chatbot widget for your website</p>
+        </div>
+
+        <!-- Main Content -->
+        <div class="content-wrapper">
+            <!-- Features Card -->
+            <div class="card">
+                <h2>✨ Features</h2>
+                <ul class="feature-list">
+                    <li>Lightweight & Fast</li>
+                    <li>Easy Integration</li>
+                    <li>Customizable Appearance</li>
+                    <li>Real-time Responses</li>
+                    <li>Mobile Responsive</li>
+                    <li>No Dependencies</li>
+                    <li>SEO Friendly</li>
+                    <li>Production Ready</li>
+                </ul>
+            </div>
+
+            <!-- Quick Start Card -->
+            <div class="card">
+                <h2>🚀 Quick Start</h2>
+                <p>Get your chatbot running in minutes with just a few lines of code:</p>
+                <div class="code-block">
+<code>&lt;script src="https://your-domain.com/chatbot.js"&gt;&lt;/script&gt;
+&lt;script&gt;
+  ChatbotWidget.init({
+    apiKey: 'your-api-key',
+    position: 'bottom-right'
+  });
+&lt;/script&gt;</code>
+                </div>
+                <button class="demo-button" onclick="scrollToIntegration()">View Full Integration Guide</button>
+            </div>
+        </div>
+
+        <!-- Integration Guide -->
+        <div class="demo-section">
+            <h2>📚 Integration Guide</h2>
+            
+            <div class="integration-tabs">
+                <button class="tab-button active" onclick="switchTab(event, 'basic')">Basic Setup</button>
+                <button class="tab-button" onclick="switchTab(event, 'advanced')">Advanced Config</button>
+                <button class="tab-button" onclick="switchTab(event, 'api')">API Reference</button>
+                <button class="tab-button" onclick="switchTab(event, 'examples')">Examples</button>
+            </div>
+
+            <!-- Basic Setup Tab -->
+            <div id="basic" class="tab-content active">
+                <h3>Step 1: Include the Script</h3>
+                <p>Add this single line to your HTML file, preferably before the closing &lt;/body&gt; tag:</p>
+                <div class="code-block">
+                    <code>&lt;script src="https://cdn.chatbot-widget.io/v1/chatbot.min.js"&gt;&lt;/script&gt;</code>
+                    <button class="copy-button" onclick="copyToClipboard(this, '<script src=\"https://cdn.chatbot-widget.io/v1/chatbot.min.js\"><\/script>')">Copy</button>
+                </div>
+
+                <h3>Step 2: Initialize the Widget</h3>
+                <p>Create a script tag to configure and initialize the chatbot:</p>
+                <div class="code-block">
+<code>&lt;script&gt;
+window.ChatbotConfig = {
+  apiKey: 'YOUR_API_KEY_HERE',
+  position: 'bottom-right',
+  theme: 'light'
+};
+&lt;/script&gt;</code>
+                    <button class="copy-button" onclick="copyToClipboard(this, 'window.ChatbotConfig = {\n  apiKey: \"YOUR_API_KEY_HERE\",\n  position: \"bottom-right\",\n  theme: \"light\"\n};')">Copy</button>
+                </div>
+
+                <h3>Step 3: Get Your API Key</h3>
+                <ol style="margin-left: 20px; line-height: 1.8;">
+                    <li>Sign up at <strong>https://chatbot-widget.io/dashboard</strong></li>
+                    <li>Create a new project</li>
+                    <li>Copy your API key from the dashboard</li>
+                    <li>Replace <code>YOUR_API_KEY_HERE</code> with your actual key</li>
+                </ol>
+            </div>
+
+            <!-- Advanced Config Tab -->
+            <div id="advanced" class="tab-content">
+                <h3>Advanced Configuration Options</h3>
+                <p>Customize every aspect of your chatbot widget:</p>
+                <div class="code-block">
+<code>{
+  apiKey: 'your-api-key',
+  position: 'bottom-right',
+  theme: 'light',
+  primaryColor: '#667eea',
+  secondaryColor: '#764ba2',
+  width: 380,
+  height: 600,
+  headerTitle: 'Chat Support',
+  headerSubtitle: 'We typically reply in minutes',
+  placeholder: 'Type your message...',
+  enablePoweredBy: true,
+  autoOpen: false,
+  autoOpenDelay: 3000,
+  minimizeOnLoad: true,
+  sounds: true,
+  notifications: true,
+  typing: true
+}</code>
+                    <button class="copy-button" onclick="copyToClipboard(this, '{...}')">Copy</button>
+                </div>
+
+                <h3>Configuration Table</h3>
+                <table class="config-table">
+                    <thead>
+                        <tr>
+                            <th>Option</th>
+                            <th>Type</th>
+                            <th>Default</th>
+                            <th>Description</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>apiKey</strong></td>
+                            <td>string</td>
+                            <td>required</td>
+                            <td>Your unique API key</td>
+                        </tr>
+                        <tr>
+                            <td><strong>position</strong></td>
+                            <td>string</td>
+                            <td>'bottom-right'</td>
+                            <td>Widget position: 'bottom-left', 'bottom-right', 'top-left', 'top-right'</td>
+                        </tr>
+                        <tr>
+                            <td><strong>theme</strong></td>
+                            <td>string</td>
+                            <td>'light'</td>
+                            <td>Theme: 'light' or 'dark'</td>
+                        </tr>
+                        <tr>
+                            <td><strong>primaryColor</strong></td>
+                            <td>string</td>
+                            <td>'#667eea'</td>
+                            <td>Main color (hex code)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>width</strong></td>
+                            <td>number</td>
+                            <td>380</td>
+                            <td>Widget width in pixels</td>
+                        </tr>
+                        <tr>
+                            <td><strong>height</strong></td>
+                            <td>number</td>
+                            <td>600</td>
+                            <td>Widget height in pixels</td>
+                        </tr>
+                        <tr>
+                            <td><strong>autoOpen</strong></td>
+                            <td>boolean</td>
+                            <td>false</td>
+                            <td>Auto-open widget on load</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- API Reference Tab -->
+            <div id="api" class="tab-content">
+                <h3>JavaScript API Methods</h3>
+                <p>Control the chatbot programmatically using these methods:</p>
+
+                <h3>Open Widget</h3>
+                <div class="code-block">
+<code>ChatbotWidget.open();</code>
+                </div>
+
+                <h3>Close Widget</h3>
+                <div class="code-block">
+<code>ChatbotWidget.close();</code>
+                </div>
+
+                <h3>Send Message</h3>
+                <div class="code-block">
+<code>ChatbotWidget.sendMessage('Hello!');</code>
+                </div>
+
+                <h3>Destroy Widget</h3>
+                <div class="code-block">
+<code>ChatbotWidget.destroy();</code>
+                </div>
+
+                <h3>Event Listeners</h3>
+                <div class="code-block">
+<code>ChatbotWidget.on('open', () => {
+  console.log('Widget opened');
+});
+
+ChatbotWidget.on('message', (msg) => {
+  console.log('New message:', msg);
+});
+
+ChatbotWidget.on('close', () => {
+  console.log('Widget closed');
+});</code>
+                </div>
+            </div>
+
+            <!-- Examples Tab -->
+            <div id="examples" class="tab-content">
+                <h3>Complete HTML Example</h3>
+                <div class="code-block">
+<code>&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;head&gt;
+    &lt;title&gt;My Website&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+    &lt;h1&gt;Welcome to My Website&lt;/h1&gt;
+    &lt;p&gt;Our AI chatbot is ready to help!&lt;/p&gt;
+
+    &lt;script src="https://cdn.chatbot-widget.io/v1/chatbot.min.js"&gt;&lt;/script&gt;
+    &lt;script&gt;
+        window.ChatbotConfig = {
+            apiKey: 'pk_live_abc123xyz',
+            position: 'bottom-right',
+            theme: 'light',
+            primaryColor: '#667eea',
+            headerTitle: 'Customer Support'
+        };
+    &lt;/script&gt;
+&lt;/body&gt;
+&lt;/html&gt;</code>
+                    <button class="copy-button" onclick="copyToClipboard(this, 'Full Example Copied')">Copy</button>
+                </div>
+
+                <h3>React Integration</h3>
+                <div class="code-block">
+<code>import { useEffect } from 'react';
+
+export default function App() {
+  useEffect(() => {
+    window.ChatbotConfig = {
+      apiKey: 'YOUR_API_KEY',
+      position: 'bottom-right'
+    };
+    
+    const script = document.createElement('script');
+    script.src = 'https://cdn.chatbot-widget.io/v1/chatbot.min.js';
+    document.body.appendChild(script);
+  }, []);
+
+  return &lt;div&gt;Your app content&lt;/div&gt;;
+}</code>
+                </div>
+            </div>
+        </div>
+
+        <!-- Live Demo Section -->
+        <div class="demo-section">
+            <h2>🎮 Live Demo</h2>
+            <p>Try the chatbot widget below to see it in action:</p>
+            
+            <div class="chatbot-container">
+                <div class="chat-display" id="chatDisplay">
+                    <div class="bot-message">
+                        👋 Hi! I'm an AI chatbot. How can I help you today?
+                    </div>
+                </div>
+                <div class="chatbot-input">
+                    <input type="text" id="chatInput" placeholder="Type your message..." onkeypress="handleKeyPress(event)">
+                    <button onclick="sendDemoMessage()">Send</button>
+                </div>
+            </div>
+
+            <div style="text-align: center; margin-top: 20px;">
+                <button class="demo-button" onclick="openModal('demoModal')">View Live Widget</button>
+                <button class="demo-button" onclick="resetChat()">Reset Chat</button>
+            </div>
+        </div>
+
+        <!-- Support Section -->
+        <div class="demo-section">
+            <h2>💡 Tips & Troubleshooting</h2>
+            
+            <h3>Common Issues</h3>
+            <ul style="margin-left: 20px; line-height: 1.8;">
+                <li><strong>Widget not appearing:</strong> Check that your API key is correct and active</li>
+                <li><strong>CORS errors:</strong> Ensure your domain is whitelisted in the dashboard</li>
+                <li><strong>Styling conflicts:</strong> The widget uses scoped styles to avoid conflicts</li>
+                <li><strong>Performance issues:</strong> Use the minified version in production</li>
+            </ul>
+
+            <h3>Best Practices</h3>
+            <ul style="margin-left: 20px; line-height: 1.8;">
+                <li>Load the script asynchronously for better performance</li>
+                <li>Use the minified version (chatbot.min.js) in production</li>
+                <li>Test on mobile devices to ensure responsive design</li>
+                <li>Monitor API usage from your dashboard</li>
+                <li>Keep your API key secure and never expose it client-side in sensitive applications</li>
+            </ul>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            <p>🚀 <strong>AI Chatbot Widget</strong> | Built for developers, powered by AI</p>
+            <p style="margin-top: 10px; font-size: 0.9em;">
+                <a href="#" style="color: white; text-decoration: none;">Documentation</a> • 
+                <a href="#" style="color: white; text-decoration: none;">GitHub</a> • 
+                <a href="#" style="color: white; text-decoration: none;">Support</a> • 
+                <a href="#" style="color: white; text-decoration: none;">Blog</a>
+            </p>
+            <p style="margin-top: 15px; font-size: 0.85em; opacity: 0.8;">
+                © 2025 AI Chatbot Widget. All rights reserved.
+            </p>
+        </div>
+    </div>
+
+    <!-- Demo Modal -->
+    <div id="demoModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('demoModal')">&times;</span>
+            <h2>Widget Preview</h2>
+            <div class="chat-display" style="height: 400px;">
+                <div class="bot-message">
+                    👋 Welcome to the AI Chatbot Widget!
+                </div>
+                <div class="bot-message" style="margin-top: 10px;">
+                    This is a preview of how the widget appears on your website. You can customize colors, size, and behavior.
+                </div>
+            </div>
+            <div class="chatbot-input" style="margin-top: 15px;">
+                <input type="text" placeholder="Type a message...">
+                <button onclick="closeModal('demoModal')">Send</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Tab switching functionality
+        function switchTab(event, tabName) {
+            const contents = document.querySelectorAll('.tab-content');
+            contents.forEach(content => content.classList.remove('active'));
+            
+            const buttons = document.querySelectorAll('.tab-button');
+            buttons.forEach(btn => btn.classList.remove('active'));
+            
+            document.getElementById(tabName).classList.add('active');
+            event.target.classList.add('active');
+        }
+
+        // Copy to clipboard functionality
+        function copyToClipboard(button, text) {
+            const textToCopy = text === 'Full Example Copied' ? button.parentElement.textContent : text;
+            navigator.clipboard.writeText(textToCopy).then(() => {
+                const originalText = button.textContent;
+                button.textContent = '✓ Copied!';
+                button.classList.add('copied');
+                setTimeout(() => {
+                    button.textContent = originalText;
+                    button.classList.remove('copied');
+                }, 2000);
+            }).catch(err => {
+                console.error('Failed to copy:', err);
+            });
+        }
+
+        // Demo chat functionality
+        const sampleResponses = [
+            "That's great! How else can I assist you?",
+            "I understand. Let me help you with that.",
+            "Thanks for reaching out. Is there anything else?",
+            "I'm here to help! What would you like to know?",
+            "That's a good question. Here are some resources that might help.",
+        ];
+
+        function sendDemoMessage() {
+            const input = document.getElementById('chatInput');
+            const message = input.value.trim();
+            
+            if (message === '') return;
+
+            const chatDisplay = document.getElementById('chatDisplay');
+            
+            // User message
+            const userMsg = document.createElement('div');
+            userMsg.className = 'message user-message';
+            userMsg.textContent = message;
+            chatDisplay.appendChild(userMsg);
+            
+            input.value = '';
+            chatDisplay.scrollTop = chatDisplay.scrollHeight;
+
+            // Bot response (simulated delay)
+            setTimeout(() => {
+                const botMsg = document.createElement('div');
+                botMsg.className = 'message bot-message';
+                botMsg.textContent = sampleResponses[Math.floor(Math.random() * sampleResponses.length)];
+                chatDisplay.appendChild(botMsg);
+                chatDisplay.scrollTop = chatDisplay.scrollHeight;
+            }, 500);
+        }
+
+        function handleKeyPress(event) {
+            if (event.key === 'Enter') {
+                sendDemoMessage();
+            }
+        }
+
+        function resetChat() {
+            const chatDisplay = document.getElementById('chatDisplay');
+            chatDisplay.innerHTML = '<div class="bot-message">👋 Hi! I\'m an AI chatbot. How can I help you today?</div>';
+        }
+
+        // Modal functionality
+        function openModal(modalId) {
+            document.getElementById(modalId).style.display = 'block';
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).style.display = 'none';
+        }
+
+        function scrollToIntegration() {
+            document.querySelector('.demo-section').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            const modal = document.getElementById('demoModal');
+            if (event.target === modal) {
+                modal.style.display = 'none';
+            }
+        }
+    </script>
+</body>
+</html>
